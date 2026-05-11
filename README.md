@@ -1,6 +1,387 @@
 # 🥋 DojoSearch
 
-> Plataforma web de gestión y descubrimiento de eventos de artes marciales.
+> Web platform for managing and discovering martial arts events.
+
+![PHP](https://img.shields.io/badge/PHP-8.x-777BB4?style=flat&logo=php&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-8.x-4479A1?style=flat&logo=mysql&logoColor=white)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-4.5-7952B3?style=flat&logo=bootstrap&logoColor=white)
+![XAMPP](https://img.shields.io/badge/XAMPP-localhost-FB7A24?style=flat&logo=xampp&logoColor=white)
+
+---
+
+## 📋 Table of Contents
+
+1. [Description](#description)
+2. [Features](#features)
+3. [Project Structure](#project-structure)
+4. [Requirements](#requirements)
+5. [Installation](#installation)
+6. [Database](#database)
+7. [User Roles](#user-roles)
+8. [Class Diagram](#class-diagram)
+9. [Sequence Diagrams](#sequence-diagrams)
+10. [Tech Stack](#tech-stack)
+
+---
+
+## Description
+
+**DojoSearch** is a web application built with native PHP following an **MVC** architecture. It allows users to browse, register for and manage martial arts events. Administrators can create, edit and delete events from a dedicated control panel.
+
+---
+
+## Features
+
+- 🔐 **Authentication** — Registration and login with passwords hashed via `password_hash` (bcrypt).
+- 👤 **User Profiles** — Edit personal data, profile photo (BLOB), social networks, bio, phone and notification preferences.
+- 🗓️ **Event Management** — Full CRUD for events (create, read, edit, delete).
+- 🔍 **Event Detail** — Individual view with all event information.
+- 🛡️ **Access Control** — Session-protected routes; admin panel exclusive to administrators.
+- 📱 **Responsive Design** — Interface adapted for mobile, tablet and desktop.
+
+---
+
+## Project Structure
+
+```
+MP0487_RA5RA6_DojoSearch/
+├── controllers/
+│   ├── db_connection.php      # PDO connection to MySQL
+│   ├── EventController.php    # Event CRUD
+│   └── UserController.php     # Auth, registration and profile management
+├── models/
+│   └── database/
+│       ├── seed.sql           # Database creation script and seed data
+│       └── xml/
+│           └── users.xml
+├── views/
+│   ├── assets/
+│   │   ├── css/               # Stylesheets (style.css, events.css, profile.css…)
+│   │   ├── images/            # Images, icons, logos
+│   │   └── videos/            # Hero background video
+│   └── php/
+│       ├── index.php          # Landing page
+│       ├── login.php          # Login page
+│       ├── register.php       # New user registration
+│       ├── events.php         # Event listing
+│       ├── detail.php         # Single event detail
+│       ├── manageEvents.php   # Create / edit events (admin)
+│       ├── userAdmin.php      # Administrator profile
+│       └── userUser.php       # Standard user profile
+└── README.md
+```
+
+---
+
+## Requirements
+
+| Tool | Minimum version |
+|------|----------------|
+| PHP | 8.0 |
+| MySQL | 8.0 |
+| XAMPP / Apache | Any |
+| Modern browser | Chrome, Firefox, Edge |
+
+---
+
+## Installation
+
+1. **Clone or copy** the project into `C:\xampp\htdocs\`:
+   ```
+   C:\xampp\htdocs\MP0487\MP0487_RA5RA6_DojoSearch\
+   ```
+
+2. **Start** Apache and MySQL from the XAMPP control panel.
+
+3. **Create the database** by running the SQL script in phpMyAdmin or from the terminal:
+   ```bash
+   mysql -u root -p < models/database/seed.sql
+   ```
+
+4. **Configure the connection** in `controllers/db_connection.php` if your settings differ:
+   ```php
+   $server   = "127.0.0.1";
+   $user     = "root";
+   $password = "";
+   $database = "mp0487_dojosearch";
+   $port     = 3306;
+   ```
+
+5. Open the application in your browser:
+   ```
+   http://localhost/MP0487/MP0487_RA5RA6_DojoSearch/views/php/index.php
+   ```
+
+---
+
+## Database
+
+**Name:** `mp0487_dojosearch`
+
+### Table `users`
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | INT UNSIGNED PK | Unique identifier |
+| `name` | VARCHAR(100) | Full name |
+| `username` | VARCHAR(50) UNIQUE | Username |
+| `email` | VARCHAR(150) UNIQUE | Email address |
+| `fecha_born` | DATE | Date of birth |
+| `password` | VARCHAR(255) | bcrypt hash |
+| `is_admin` | TINYINT(1) | 1 = administrator |
+| `photo` | LONGBLOB | Profile photo |
+| `bio` | TEXT | Biography |
+| `phone` | VARCHAR(20) | Phone number |
+| `twitter` | VARCHAR(100) | Twitter profile |
+| `instagram` | VARCHAR(100) | Instagram profile |
+| `facebook` | VARCHAR(100) | Facebook profile |
+| `youtube` | VARCHAR(100) | YouTube channel |
+| `email_messages` | TINYINT(1) | Message notifications |
+| `email_reminders` | TINYINT(1) | Reminder notifications |
+| `email_promotions` | TINYINT(1) | Promotional notifications |
+| `created_at` | DATETIME | Registration date |
+
+### Table `events`
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | INT UNSIGNED PK | Unique identifier |
+| `name` | VARCHAR(150) | Event name |
+| `description` | TEXT | Description |
+| `date` | DATETIME | Date and time |
+| `location` | VARCHAR(200) | Event venue |
+
+---
+
+## User Roles
+
+| Role | Access |
+|------|--------|
+| **Visitor** | `index.php`, `login.php`, `register.php` |
+| **User** | All of the above + `events.php`, `detail.php`, `userUser.php` |
+| **Administrator** | All of the above + `userAdmin.php`, `manageEvents.php` (create/edit/delete events) |
+
+---
+
+## Class Diagram
+
+```mermaid
+classDiagram
+    class UserController {
+        -PDO conn
+        +__construct(PDO db)
+        +handleRequest() void
+        +login() void
+        +register() void
+        +updateUser() void
+        +updateGeneral() void
+        +updatePassword() void
+        +updateInfo() void
+        +updateSocial() void
+        +updateNotifications() void
+        +uploadPhoto() void
+        +deleteAccount() void
+        +logout() void
+        +checkSession()$ void
+    }
+
+    class EventController {
+        -PDO conn
+        +__construct(PDO conn)
+        +getAllEvents() array
+        +handleForm() void
+        -createEvent() void
+        -deleteEvent() void
+        -updateEvent() void
+    }
+
+    class User {
+        +int id
+        +string name
+        +string username
+        +string email
+        +date fecha_born
+        +string password
+        +bool is_admin
+        +blob photo
+        +string bio
+        +string phone
+        +string twitter
+        +string instagram
+        +string facebook
+        +string youtube
+        +bool email_messages
+        +bool email_reminders
+        +bool email_promotions
+        +datetime created_at
+    }
+
+    class Event {
+        +int id
+        +string name
+        +string description
+        +datetime date
+        +string location
+    }
+
+    class Database {
+        -string server
+        -string user
+        -string password
+        -string database
+        -int port
+        +connect() PDO
+    }
+
+    UserController --> Database : uses
+    EventController --> Database : uses
+    UserController ..> User : manages
+    EventController ..> Event : manages
+```
+
+---
+
+## Sequence Diagrams
+
+### 1. Login
+
+```mermaid
+sequenceDiagram
+    actor U as User
+    participant V as login.php
+    participant C as UserController
+    participant DB as MySQL (users)
+
+    U->>V: Fills in email + password and submits
+    V->>C: POST action=login
+    C->>DB: SELECT * FROM users WHERE email = ?
+    DB-->>C: User row (or empty)
+    alt User found
+        C->>C: password_verify(input, hash)
+        alt Correct password
+            C->>C: $_SESSION['user'] = userData
+            alt is_admin = 1
+                C-->>U: Redirect → userAdmin.php
+            else is_admin = 0
+                C-->>U: Redirect → userUser.php
+            end
+        else Wrong password
+            C-->>V: $_SESSION['error'] = message
+            V-->>U: Shows error
+        end
+    else User not found
+        C-->>V: $_SESSION['error'] = message
+        V-->>U: Shows error
+    end
+```
+
+### 2. User Registration
+
+```mermaid
+sequenceDiagram
+    actor U as User
+    participant V as register.php
+    participant C as UserController
+    participant DB as MySQL (users)
+
+    U->>V: Fills in form and submits
+    V->>C: POST register=1
+    C->>C: Validate fields, terms, password rules
+    alt Validation failed
+        C-->>V: $_SESSION['error']
+        V-->>U: Shows error
+    else Validation passed
+        C->>DB: SELECT id WHERE email OR username
+        alt Email / username already exists
+            C-->>V: $_SESSION['error'] = 'already registered'
+            V-->>U: Shows error
+        else Available
+            C->>C: password_hash(password)
+            C->>DB: INSERT INTO users (...)
+            DB-->>C: OK
+            C-->>V: $_SESSION['success']
+            V-->>U: Redirect → login.php
+        end
+    end
+```
+
+### 3. Create an Event (Admin)
+
+```mermaid
+sequenceDiagram
+    actor A as Administrator
+    participant V as manageEvents.php
+    participant C as EventController
+    participant DB as MySQL (events)
+
+    A->>V: Opens event creation form
+    V->>V: checkSession() + is_admin check
+    A->>V: Fills in name, description, date, location
+    V->>C: POST createEvent=1
+    C->>DB: INSERT INTO events (name, description, date, location)
+    DB-->>C: OK
+    C-->>A: Redirect → manageEvents.php
+```
+
+### 4. View Event Detail
+
+```mermaid
+sequenceDiagram
+    actor U as User
+    participant EV as events.php
+    participant D as detail.php
+    participant DB as MySQL (events)
+
+    U->>EV: Loads event listing
+    EV->>DB: SELECT * FROM events ORDER BY date ASC
+    DB-->>EV: Event list
+    EV-->>U: Renders event cards
+    U->>D: Clicks "More details" → GET id=X
+    D->>D: checkSession() — validate session
+    D->>DB: SELECT * FROM events WHERE id = X
+    DB-->>D: Event data
+    D-->>U: Renders full event detail view
+```
+
+### 5. Update User Profile
+
+```mermaid
+sequenceDiagram
+    actor U as User
+    participant V as userUser.php / userAdmin.php
+    participant C as UserController
+    participant DB as MySQL (users)
+
+    U->>V: Edits a section (general / info / social / notifications / password)
+    V->>C: POST action=updateGeneral | updateInfo | updateSocial | updateNotifications | updatePassword
+    C->>C: Validate session + permissions (id == session id)
+    C->>DB: UPDATE users SET ... WHERE id = ?
+    DB-->>C: OK
+    C->>DB: SELECT * FROM users WHERE id = ?
+    DB-->>C: Updated data
+    C->>C: $_SESSION['user'] = fresh data
+    C-->>V: $_SESSION['success']
+    V-->>U: Shows confirmation
+```
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Backend | PHP 8 (native, MVC pattern) |
+| Database | MySQL 8 + PDO |
+| Frontend | HTML5, CSS3, Bootstrap 4.5 |
+| Icons | Font Awesome 6 |
+| Typography | Google Fonts (Bebas Neue, Montserrat) |
+| Maps | Leaflet.js |
+| Local server | XAMPP (Apache + MySQL) |
+
+---
+
+> Academic project — Module MP0487 · RA5/RA6 · DojoSearch
+
 
 ![PHP](https://img.shields.io/badge/PHP-8.x-777BB4?style=flat&logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-8.x-4479A1?style=flat&logo=mysql&logoColor=white)
